@@ -1,26 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'screens/auth.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-import 'src/app.dart';
-import 'src/settings/settings_controller.dart';
-import 'src/settings/settings_service.dart';
+void main() {
+  runApp(const App());
+}
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  // Set up the SettingsController, which will glue user settings to multiple
-  // Flutter Widgets.
-  final settingsController = SettingsController(SettingsService());
+class App extends StatelessWidget {
+  const App({super.key});
 
-  // Load the user's preferred theme while the splash screen is displayed.
-  // This prevents a sudden theme change when the app is first displayed.
-  await settingsController.loadSettings();
-
-  // Run the app and pass in the SettingsController. The app listens to the
-  // SettingsController for changes, then passes it further down to the
-  // SettingsView.
-  runApp(MyApp(settingsController: settingsController));
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'FlutterChat',
+      theme: ThemeData().copyWith(
+          textTheme: GoogleFonts.latoTextTheme().copyWith(
+              titleLarge: const TextStyle(
+            color: Color.fromARGB(255, 247, 248, 253),
+          )),
+          useMaterial3: true,
+          colorScheme: const ColorScheme.dark(
+            background: Color.fromARGB(255, 8, 14, 32),
+            primary: Color.fromARGB(255, 28, 46, 109), // button color
+            onPrimary: Color.fromARGB(255, 247, 248, 253), //text color
+            secondary: Color.fromARGB(255, 13, 20, 49), // meta's containers
+            primaryContainer:
+                Color.fromARGB(255, 16, 22, 39), //nawaf's containers
+            secondaryContainer: Color.fromARGB(255, 60, 92, 205), //accent
+          )),
+      home: const AuthScreen(),
+    );
+  }
 }
