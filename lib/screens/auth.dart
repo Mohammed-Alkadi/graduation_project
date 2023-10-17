@@ -1,8 +1,7 @@
-import 'dart:io';
-
 // import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 // final _firebase = FirebaseAuth.instance;
 
@@ -16,6 +15,15 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
+  TextEditingController dateinput = TextEditingController();
+  //text editing controller for text field (for date)
+
+  @override
+  void initState() {
+    dateinput.text = ""; //set the initial value of text field (for date)
+    super.initState();
+  }
+
   final _formKey = GlobalKey<FormState>();
   var _isLogin = true;
   var _isPatient = true;
@@ -235,64 +243,144 @@ class _AuthScreenState extends State<AuthScreen> {
                         const SizedBox(
                           height: 16,
                         ),
-                        TextFormField(
-                          decoration: InputDecoration(
-                            focusedErrorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                style: BorderStyle.none,
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(
-                                style: BorderStyle.none,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .secondaryContainer,
-                              ),
-                            ),
-                            border: const OutlineInputBorder(),
-                            filled: true,
-                            fillColor: Theme.of(context).colorScheme.secondary,
-                            label: const Text('Password'),
-                            floatingLabelStyle: _inValidPassword
-                                ? TextStyle(
-                                    color: Theme.of(context).colorScheme.error,
-                                  )
-                                : TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .secondaryContainer,
+                        _isLogin
+                            ? TextFormField(
+                                decoration: InputDecoration(
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(
+                                      style: BorderStyle.none,
+                                    ),
                                   ),
-                          ),
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onPrimary,
-                          ),
-                          obscureText: true,
-                          validator: (value) {
-                            final vpassword =
-                                value == null || value.trim().length < 6;
-                            if (vpassword) {
-                              setState(() {
-                                _inValidPassword = vpassword;
-                              });
-                              return 'password must be at least 6 characters long';
-                            }
-                            setState(() {
-                              _inValidPassword = vpassword;
-                            });
-                            return null;
-                          },
-                          onSaved: (value) {
-                            _enteredPassword = value!;
-                          },
-                        ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(
+                                      style: BorderStyle.none,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondaryContainer,
+                                    ),
+                                  ),
+                                  border: const OutlineInputBorder(),
+                                  filled: true,
+                                  fillColor:
+                                      Theme.of(context).colorScheme.secondary,
+                                  label: const Text('Password'),
+                                  floatingLabelStyle: _inValidPassword
+                                      ? TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .error,
+                                        )
+                                      : TextStyle(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondaryContainer,
+                                        ),
+                                ),
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                ),
+                                obscureText: true,
+                                validator: (value) {
+                                  final vpassword =
+                                      value == null || value.trim().length < 6;
+                                  if (vpassword) {
+                                    setState(() {
+                                      _inValidPassword = vpassword;
+                                    });
+                                    return 'password must be at least 6 characters long';
+                                  }
+                                  setState(() {
+                                    _inValidPassword = vpassword;
+                                  });
+                                  return null;
+                                },
+                                onSaved: (value) {
+                                  _enteredPassword = value!;
+                                },
+                              )
+                            : TextFormField(
+                                // date for sign up
+                                controller:
+                                    dateinput, //editing controller of this TextField
+                                decoration: InputDecoration(
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(
+                                      style: BorderStyle.none,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(
+                                      style: BorderStyle.none,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                    borderSide: BorderSide(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .secondaryContainer,
+                                    ),
+                                  ),
+                                  border: const OutlineInputBorder(),
+                                  filled: true,
+                                  fillColor:
+                                      Theme.of(context).colorScheme.secondary,
+                                  label: const Text('Date'),
+                                  // floatingLabelStyle: _inValidPassword
+                                  //     ? TextStyle(
+                                  //         color: Theme.of(context)
+                                  //             .colorScheme
+                                  //             .error,
+                                  //       )
+                                  //     : TextStyle(
+                                  //         color: Theme.of(context)
+                                  //             .colorScheme
+                                  //             .secondaryContainer,
+                                  //       ),
+                                ),
+                                style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
+                                ),
+                                readOnly:
+                                    true, //set it true, so that user will not able to edit text
+                                onTap: () async {
+                                  DateTime? pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(2000),
+                                    lastDate: DateTime(2101),
+                                  );
+
+                                  if (pickedDate != null) {
+                                    //pickedDate output format => 2021-03-10 00:00:00.000
+                                    String formattedDate =
+                                        DateFormat('yyyy-MM-dd')
+                                            .format(pickedDate);
+                                    //formatted date output using intl package =>  2021-03-16
+                                    //you can implement different kind of Date Format here according to your requirement
+
+                                    setState(() {
+                                      dateinput.text =
+                                          formattedDate; //set output date to TextField value.
+                                    });
+                                  } else {
+                                    setState(() {
+                                      dateinput.text = '';
+                                    });
+                                  }
+                                },
+                              ),
                         const SizedBox(
                           height: 12,
                         ),
@@ -326,6 +414,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               onPressed: () {
                                 setState(() {
                                   _isLogin = !_isLogin;
+                                  dateinput.text = ''; // for date
                                 });
                               },
                               child: Text(
