@@ -21,8 +21,10 @@ class _AuthScreenState extends State<AuthScreen> {
   var _isPatient = true;
   var _isDoctor = false;
   var _enteredEmail = '';
+  var _enteredId = '';
   var _enteredPassword = '';
   bool _inValidEmail = false;
+  bool _invalidId = false;
   bool _inValidPassword = false;
 
   void _submit() async {
@@ -134,7 +136,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                           .onPrimary),
                                 ),
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               TextButton(
                                 style: TextButton.styleFrom(
                                   shadowColor:
@@ -188,7 +190,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             border: const OutlineInputBorder(),
                             filled: true,
                             fillColor: Theme.of(context).colorScheme.secondary,
-                            label: const Text('Email Address'),
+                            label: const Text('National id / Iqama id'),
                             floatingLabelStyle: _inValidEmail
                                 ? TextStyle(
                                     color: Theme.of(context).colorScheme.error,
@@ -202,26 +204,32 @@ class _AuthScreenState extends State<AuthScreen> {
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.onPrimary,
                           ),
-                          keyboardType: TextInputType.emailAddress,
+                          keyboardType: TextInputType.number,
                           autocorrect: false,
                           textCapitalization: TextCapitalization.none,
+                          enableInteractiveSelection: false,
                           validator: (value) {
-                            final vemail = value == null ||
+                            //لازم نضيف للشرط نتيجة التشييك على الايدي بالفايربيس
+                            final invId = value == null ||
                                 value.trim().isEmpty ||
-                                !value.contains('@');
-                            if (vemail) {
+                                value.length != 10 ||
+                                value.contains('.') ||
+                                value.contains('-') ||
+                                value.contains(',') ||
+                                value.contains(' ');
+                            if (invId) {
                               setState(() {
-                                _inValidEmail = vemail;
+                                _invalidId = invId;
                               });
-                              return 'please enter valid email';
+                              return 'please enter valid id';
                             }
                             setState(() {
-                              _inValidEmail = vemail;
+                              _invalidId = invId;
                             });
                             return null;
                           },
                           onSaved: (value) {
-                            _enteredEmail = value!;
+                            _enteredId = value!;
                           },
                         ),
                         const SizedBox(
