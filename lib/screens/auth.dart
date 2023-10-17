@@ -73,7 +73,18 @@ class _AuthScreenState extends State<AuthScreen> {
                   right: 20,
                 ),
                 width: 200,
-                child: Image.asset('assets/images/chat.png'),
+                child: Image.asset(
+                  'assets/images/Logo.png',
+                ),
+              ),
+              Text(
+                _isPatient
+                    ? 'Your Health is our priority ! '
+                    : "Your patients are waiting, Doc ! ",
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
               ),
               SingleChildScrollView(
                 child: Padding(
