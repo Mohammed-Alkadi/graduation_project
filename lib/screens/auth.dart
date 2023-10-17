@@ -360,6 +360,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                     initialDate: DateTime.now(),
                                     firstDate: DateTime(2000),
                                     lastDate: DateTime(2101),
+                                    // edit colors of date picker here --------
                                   );
 
                                   if (pickedDate != null) {
