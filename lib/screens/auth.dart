@@ -31,6 +31,7 @@ class _AuthScreenState extends State<AuthScreen> {
   var _enteredEmail = '';
   var _enteredId = '';
   var _enteredPassword = '';
+  var _enteredDate = '';
   bool _inValidEmail = false;
   bool _invalidId = false;
   bool _inValidPassword = false;
@@ -199,7 +200,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             filled: true,
                             fillColor: Theme.of(context).colorScheme.secondary,
                             label: const Text('National id / Iqama id'),
-                            floatingLabelStyle: _inValidEmail
+                            floatingLabelStyle: _invalidId
                                 ? TextStyle(
                                     color: Theme.of(context).colorScheme.error,
                                   )
@@ -335,7 +336,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                   filled: true,
                                   fillColor:
                                       Theme.of(context).colorScheme.secondary,
-                                  label: const Text('Date'),
+                                  label: const Text('Date of Birth'),
                                   // floatingLabelStyle: _inValidPassword
                                   //     ? TextStyle(
                                   //         color: Theme.of(context)
@@ -356,12 +357,41 @@ class _AuthScreenState extends State<AuthScreen> {
                                     true, //set it true, so that user will not able to edit text
                                 onTap: () async {
                                   DateTime? pickedDate = await showDatePicker(
-                                    context: context,
-                                    initialDate: DateTime.now(),
-                                    firstDate: DateTime(2000),
-                                    lastDate: DateTime(2101),
-                                    // edit colors of date picker here --------
-                                  );
+                                      context: context,
+                                      initialDate: DateTime.now(),
+                                      firstDate: DateTime(1900),
+                                      lastDate: DateTime.now(),
+                                      // edit colors of date picker here --------
+                                      builder: (context, child) {
+                                        return Theme(
+                                          data: Theme.of(context).copyWith(
+                                            colorScheme: ColorScheme.dark(
+                                              primary: Theme.of(context)
+                                                  .colorScheme
+                                                  .secondaryContainer, // header background color
+                                              onPrimary: Colors
+                                                  .black, // header text color
+                                              onSurface: Theme.of(context)
+                                                  .colorScheme
+                                                  .onPrimary, // body text color
+                                            ),
+                                            textButtonTheme:
+                                                TextButtonThemeData(
+                                              style: TextButton.styleFrom(
+                                                backgroundColor:
+                                                    Theme.of(context)
+                                                        .colorScheme
+                                                        .primary,
+                                                foregroundColor:
+                                                    Theme.of(context)
+                                                        .colorScheme
+                                                        .onPrimary,
+                                              ),
+                                            ),
+                                          ),
+                                          child: child!,
+                                        );
+                                      });
 
                                   if (pickedDate != null) {
                                     //pickedDate output format => 2021-03-10 00:00:00.000
@@ -372,7 +402,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                     //you can implement different kind of Date Format here according to your requirement
 
                                     setState(() {
-                                      dateinput.text =
+                                      dateinput.text = formattedDate;
+                                      _enteredDate =
                                           formattedDate; //set output date to TextField value.
                                     });
                                   } else {
@@ -396,7 +427,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 backgroundColor:
                                     Theme.of(context).colorScheme.primary),
                             child: Text(
-                              _isLogin ? 'Login' : 'signup',
+                              _isLogin ? 'Login' : 'Signup',
                               style: Theme.of(context)
                                   .textTheme
                                   .titleLarge!
@@ -416,6 +447,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 setState(() {
                                   _isLogin = !_isLogin;
                                   dateinput.text = ''; // for date
+                                  _enteredDate = ''; // for date
                                 });
                               },
                               child: Text(
