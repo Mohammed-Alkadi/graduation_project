@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'screens/auth.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gp/screens/Auth/auth.dart';
 
 void main() {
   runApp(const App());
