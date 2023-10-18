@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gp/screens/Auth/auth.dart';
+import 'package:gp/screens/Auth/signupPatient.dart';
 
 void main() {
   runApp(const App());
@@ -28,7 +28,7 @@ class App extends StatelessWidget {
                 Color.fromARGB(255, 16, 22, 39), //nawaf's containers
             secondaryContainer: Color.fromARGB(255, 60, 92, 205), //accent
           )),
-      home: const AuthScreen(),
+      home: const SignUpPatientScreen(),
     );
   }
 }
