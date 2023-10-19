@@ -1,4 +1,7 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class SignUpPatientScreen extends StatefulWidget {
   const SignUpPatientScreen({super.key});
@@ -18,6 +21,37 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
   var _enteredPassword = '';
   var _enteredConfirmPassword = '';
 
+  void _submit() async {
+    final isValid = _formKey.currentState!.validate();
+    // if (!isValid || !_isLogin) {
+    //   return;
+    // }
+
+    // if (!_isLogin) {
+    //   return;
+    // }
+
+    _formKey.currentState!.save();
+    // try {
+    //   if (_isLogin) {
+    //     final userCred = await _firebase.signInWithEmailAndPassword(
+    //         email: _enteredEmail, password: _enteredPassword);
+    //   } else {
+    //     final userCred = await _firebase.createUserWithEmailAndPassword(
+    //         email: _enteredEmail, password: _enteredPassword);
+
+    //     }
+    //   } on FirebaseAuthException catch (error) {
+    //     if (error.code == 'email-already-in-use') {}
+    //     ScaffoldMessenger.of(context).clearSnackBars();
+    //     ScaffoldMessenger.of(context).showSnackBar(
+    //       SnackBar(
+    //         content: Text(error.message ?? 'Auth failed'),
+    //       ),
+    //     );
+    //   }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -29,11 +63,12 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
         backgroundColor: Theme.of(context).colorScheme.background,
         body: Center(
           child: SingleChildScrollView(
+            padding: const EdgeInsets.only(top: 24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Account Information ',
+                  'Account Information',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineSmall!.copyWith(
                         color: Theme.of(context).colorScheme.onPrimary,
@@ -49,47 +84,19 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                         children: [
                           TextFormField(
                             decoration: InputDecoration(
-                              focusedErrorBorder: OutlineInputBorder(
+                              border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
                                 borderSide: const BorderSide(
                                   width: 2,
                                   style: BorderStyle.none,
                                 ),
                               ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(
-                                  width: 2,
-                                  style: BorderStyle.none,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  width: 2,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .secondaryContainer,
-                                ),
-                              ),
-                              border: const OutlineInputBorder(),
                               filled: true,
                               fillColor:
                                   Theme.of(context).colorScheme.secondary,
                               enabled: false,
+                              //bring name of patient from database and show here !
                               label: const Text('Nawaf Mohammed'),
-                              floatingLabelStyle: _invalidMobile
-                                  ? TextStyle(
-                                      fontSize: 18,
-                                      color:
-                                          Theme.of(context).colorScheme.error,
-                                    )
-                                  : TextStyle(
-                                      fontSize: 18,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondaryContainer,
-                                    ),
                             ),
                           ),
                           const SizedBox(
@@ -97,47 +104,19 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                           ),
                           TextFormField(
                             decoration: InputDecoration(
-                              focusedErrorBorder: OutlineInputBorder(
+                              border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
                                 borderSide: const BorderSide(
                                   width: 2,
                                   style: BorderStyle.none,
                                 ),
                               ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(
-                                  width: 2,
-                                  style: BorderStyle.none,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  width: 2,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .secondaryContainer,
-                                ),
-                              ),
-                              border: const OutlineInputBorder(),
                               filled: true,
                               fillColor:
                                   Theme.of(context).colorScheme.secondary,
                               enabled: false,
+                              //bring patient's birthdate from previous page !!
                               label: const Text('2001-06-14'),
-                              floatingLabelStyle: _invalidMobile
-                                  ? TextStyle(
-                                      fontSize: 18,
-                                      color:
-                                          Theme.of(context).colorScheme.error,
-                                    )
-                                  : TextStyle(
-                                      fontSize: 18,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondaryContainer,
-                                    ),
                             ),
                           ),
                           const SizedBox(
@@ -145,47 +124,19 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                           ),
                           TextFormField(
                             decoration: InputDecoration(
-                              focusedErrorBorder: OutlineInputBorder(
+                              border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
                                 borderSide: const BorderSide(
                                   width: 2,
                                   style: BorderStyle.none,
                                 ),
                               ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: const BorderSide(
-                                  width: 2,
-                                  style: BorderStyle.none,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
-                                  width: 2,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .secondaryContainer,
-                                ),
-                              ),
-                              border: const OutlineInputBorder(),
                               filled: true,
                               fillColor:
                                   Theme.of(context).colorScheme.secondary,
                               enabled: false,
+                              // Bring gender from firebase database !
                               label: const Text('Male'),
-                              floatingLabelStyle: _invalidMobile
-                                  ? TextStyle(
-                                      fontSize: 18,
-                                      color:
-                                          Theme.of(context).colorScheme.error,
-                                    )
-                                  : TextStyle(
-                                      fontSize: 18,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondaryContainer,
-                                    ),
                             ),
                           ),
                           const SizedBox(
@@ -201,6 +152,12 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                                   style: BorderStyle.none,
                                 ),
                               ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                              ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
                                 borderSide: const BorderSide(
@@ -217,7 +174,7 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                                       .secondaryContainer,
                                 ),
                               ),
-                              border: const OutlineInputBorder(),
+                              // border: const OutlineInputBorder(),
                               filled: true,
                               fillColor:
                                   Theme.of(context).colorScheme.secondary,
@@ -242,15 +199,15 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
                             enableInteractiveSelection: false,
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(10),
+                            ],
                             validator: (value) {
-                              //لازم نضيف للشرط نتيجة التشييك على الايدي بالفايربيس
+                              //لازم نضيف للشرط نتيجة التشييك على رقم بالفايربيس
                               final invMobile = value == null ||
                                   value.trim().isEmpty ||
-                                  value.length != 10 ||
-                                  value.contains('.') ||
-                                  value.contains('-') ||
-                                  value.contains(',') ||
-                                  value.contains(' ');
+                                  value.length != 10;
                               if (invMobile) {
                                 setState(() {
                                   _invalidMobile = invMobile;
@@ -278,6 +235,12 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                                   style: BorderStyle.none,
                                 ),
                               ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                              ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
                                 borderSide: const BorderSide(
@@ -294,7 +257,7 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                                       .secondaryContainer,
                                 ),
                               ),
-                              border: const OutlineInputBorder(),
+                              // border: const OutlineInputBorder(),
                               filled: true,
                               fillColor:
                                   Theme.of(context).colorScheme.secondary,
@@ -315,15 +278,16 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onPrimary,
                             ),
-                            keyboardType: TextInputType.number,
+                            keyboardType: TextInputType.emailAddress,
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
-                            enableInteractiveSelection: false,
                             validator: (value) {
                               //لازم نضيف للشرط نتيجة التشييك على الايدي بالفايربيس
                               final invEmail = value == null ||
                                   value.trim().isEmpty ||
-                                  !value.contains('@');
+                                  !RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                      .hasMatch(value);
+
                               if (invEmail) {
                                 setState(() {
                                   _invalidEmail = invEmail;
@@ -352,6 +316,12 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                                   style: BorderStyle.none,
                                 ),
                               ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                              ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
                                 borderSide: const BorderSide(
@@ -368,11 +338,12 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                                       .secondaryContainer,
                                 ),
                               ),
-                              border: const OutlineInputBorder(),
+                              // border: const OutlineInputBorder(),
                               filled: true,
                               fillColor:
                                   Theme.of(context).colorScheme.secondary,
                               label: const Text('Password'),
+
                               floatingLabelStyle: _invalidPassword
                                   ? TextStyle(
                                       fontSize: 18,
@@ -390,20 +361,24 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                               color: Theme.of(context).colorScheme.onPrimary,
                             ),
                             obscureText: true,
+
                             validator: (value) {
-                              final vpassword =
-                                  value == null || value.trim().length < 6;
+                              final vpassword = value == null ||
+                                  !RegExp(r'^(?=.?[A-Z])(?=.?[a-z])(?=.?[0-9])(?=.?[!@#$&*~]).{6,}$')
+                                      .hasMatch(value);
                               if (vpassword) {
                                 setState(() {
                                   _invalidPassword = vpassword;
                                 });
-                                return 'password must be at least 6 characters long';
+                                return 'please enter a valid password';
                               }
+                              _enteredPassword = value;
                               setState(() {
                                 _invalidPassword = vpassword;
                               });
                               return null;
                             },
+
                             onSaved: (value) {
                               _enteredPassword = value!;
                             },
@@ -419,6 +394,12 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                                 borderSide: const BorderSide(
                                   width: 2,
                                   style: BorderStyle.none,
+                                ),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.error,
                                 ),
                               ),
                               enabledBorder: OutlineInputBorder(
@@ -437,11 +418,13 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                                       .secondaryContainer,
                                 ),
                               ),
-                              border: const OutlineInputBorder(),
+                              // border: const OutlineInputBorder(),
                               filled: true,
                               fillColor:
                                   Theme.of(context).colorScheme.secondary,
                               label: const Text('Confirm Password'),
+                              helperText:
+                                  'at least 8 characters in length\nat least one upper case\nat least one lower case \nat least one digit\nat least one Special character',
                               floatingLabelStyle: _invalidConfirmPassword
                                   ? TextStyle(
                                       fontSize: 18,
@@ -459,14 +442,17 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                               color: Theme.of(context).colorScheme.onPrimary,
                             ),
                             obscureText: true,
+
                             validator: (value) {
-                              final confirmVpassword =
-                                  value == null || value.trim().length < 6;
+                              final confirmVpassword = value == null ||
+                                  value.trim().length < 6 ||
+                                  // _enteredPassword.compareTo(value) != 0
+                                  _enteredPassword != value;
                               if (confirmVpassword) {
                                 setState(() {
                                   _invalidConfirmPassword = confirmVpassword;
                                 });
-                                return 'password must be at least 6 characters long';
+                                return 'password does not match !';
                               }
                               setState(() {
                                 _invalidConfirmPassword = confirmVpassword;
@@ -484,7 +470,7 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: _submit,
                               style: ElevatedButton.styleFrom(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
