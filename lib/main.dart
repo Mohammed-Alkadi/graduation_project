@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gp/screens/Auth/signupPatient.dart';
 import 'package:gp/screens/auth.dart';
 
 void main() {

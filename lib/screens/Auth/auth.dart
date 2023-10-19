@@ -1,6 +1,8 @@
 // import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:gp/screens/Auth/signupPatient.dart';
 import 'package:intl/intl.dart';
 
 // final _firebase = FirebaseAuth.instance;
@@ -40,12 +42,27 @@ class _AuthScreenState extends State<AuthScreen> {
 
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
-    if (!isValid || !_isLogin) {
+
+    // if (!isValid || !_isLogin) {
+    //   return;
+    // }
+    if (!isValid) {
       return;
     }
 
-    if (!_isLogin) {
-      return;
+    //Add firebase logic
+    //check if id and bod exists in simulation database
+    //get name from firebase
+    //pass bod from here
+    //get gender from firebase
+    print(!_isLogin);
+    print(!_isPatient);
+    if (!_isLogin && _isPatient) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (ctx) => SignUpPatientScreen(),
+        ),
+      );
     }
 
     _formKey.currentState!.save();
@@ -150,6 +167,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                       _invalidDate = false;
                                       _invalidId = false;
                                       _invalidPassword = false;
+                                      dateinput.text = '';
                                     });
                                   },
                                   child: Text(
@@ -184,6 +202,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                       _invalidDate = false;
                                       _invalidId = false;
                                       _invalidPassword = false;
+                                      dateinput.text = '';
                                     });
                                   },
                                   child: Text(
@@ -206,6 +225,12 @@ class _AuthScreenState extends State<AuthScreen> {
                                   style: BorderStyle.none,
                                 ),
                               ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
+                              ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
                                 borderSide: const BorderSide(
@@ -222,7 +247,6 @@ class _AuthScreenState extends State<AuthScreen> {
                                       .secondaryContainer,
                                 ),
                               ),
-                              border: const OutlineInputBorder(),
                               filled: true,
                               fillColor:
                                   Theme.of(context).colorScheme.secondary,
@@ -247,20 +271,20 @@ class _AuthScreenState extends State<AuthScreen> {
                             autocorrect: false,
                             textCapitalization: TextCapitalization.none,
                             enableInteractiveSelection: false,
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(10),
+                            ],
                             validator: (value) {
                               //لازم نضيف للشرط نتيجة التشييك على الايدي بالفايربيس
                               final invId = value == null ||
                                   value.trim().isEmpty ||
-                                  value.length != 10 ||
-                                  value.contains('.') ||
-                                  value.contains('-') ||
-                                  value.contains(',') ||
-                                  value.contains(' ');
+                                  value.length != 10;
                               if (invId) {
                                 setState(() {
                                   _invalidId = invId;
                                 });
-                                return 'please enter valid id';
+                                return 'please enter a valid id';
                               }
                               setState(() {
                                 _invalidId = invId;
@@ -285,6 +309,13 @@ class _AuthScreenState extends State<AuthScreen> {
                                         style: BorderStyle.none,
                                       ),
                                     ),
+                                    errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide(
+                                        color:
+                                            Theme.of(context).colorScheme.error,
+                                      ),
+                                    ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8),
                                       borderSide: const BorderSide(
@@ -301,7 +332,6 @@ class _AuthScreenState extends State<AuthScreen> {
                                             .secondaryContainer,
                                       ),
                                     ),
-                                    border: const OutlineInputBorder(),
                                     filled: true,
                                     fillColor:
                                         Theme.of(context).colorScheme.secondary,
@@ -332,7 +362,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                       setState(() {
                                         _invalidPassword = vpassword;
                                       });
-                                      return 'password must be at least 6 characters long';
+                                      return 'password is not correct !';
                                     }
                                     setState(() {
                                       _invalidPassword = vpassword;
@@ -355,6 +385,13 @@ class _AuthScreenState extends State<AuthScreen> {
                                         style: BorderStyle.none,
                                       ),
                                     ),
+                                    errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide(
+                                        color:
+                                            Theme.of(context).colorScheme.error,
+                                      ),
+                                    ),
                                     enabledBorder: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8),
                                       borderSide: const BorderSide(
@@ -371,7 +408,6 @@ class _AuthScreenState extends State<AuthScreen> {
                                             .secondaryContainer,
                                       ),
                                     ),
-                                    border: const OutlineInputBorder(),
                                     filled: true,
                                     fillColor:
                                         Theme.of(context).colorScheme.secondary,
@@ -475,7 +511,9 @@ class _AuthScreenState extends State<AuthScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: _submit,
+                              onPressed: () {
+                                _submit();
+                              },
                               style: ElevatedButton.styleFrom(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
@@ -540,3 +578,4 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 }
+//581
