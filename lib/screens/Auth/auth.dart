@@ -1,11 +1,14 @@
-// import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gp/models/patients.dart';
 import 'package:gp/screens/Auth/signupPatient.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-// final _firebase = FirebaseAuth.instance;
+final _firebaseAuth = FirebaseAuth.instance;
+final _firestore = FirebaseFirestore.instance;
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -66,6 +69,18 @@ class _AuthScreenState extends State<AuthScreen> {
     }
 
     _formKey.currentState!.save();
+    if (_isLogin && _isPatient) {
+      final patientSnap = await _firestore
+          .collection('patients')
+          .where('nationalid', isEqualTo: _enteredId)
+          .get();
+
+      if (patientSnap.docs.length == 1) {
+        var _patientEmail = patientSnap.docs[0]['email'];
+        final userCreds = await _firebaseAuth.signInWithEmailAndPassword(
+            email: _patientEmail, password: _enteredPassword);
+      }
+    }
     // try {
     //   if (_isLogin) {
     //     final userCred = await _firebase.signInWithEmailAndPassword(

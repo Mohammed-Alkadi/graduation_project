@@ -1,8 +1,15 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:gp/screens/auth.dart';
+import 'package:gp/screens/Auth/auth.dart';
+import 'package:gp/themes/theme.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'firebase_options.dart';
+import 'package:gp/screens/homepage.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const App());
 }
 
@@ -13,22 +20,16 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'FlutterChat',
-      theme: ThemeData().copyWith(
-          textTheme: GoogleFonts.latoTextTheme().copyWith(
-              titleLarge: const TextStyle(
-            color: Color.fromARGB(255, 247, 248, 253),
-          )),
-          useMaterial3: true,
-          colorScheme: const ColorScheme.dark(
-            background: Color.fromARGB(255, 8, 14, 32),
-            primary: Color.fromARGB(255, 28, 46, 109), // button color
-            onPrimary: Color.fromARGB(255, 247, 248, 253), //text color
-            secondary: Color.fromARGB(255, 13, 20, 49), // meta's containers
-            primaryContainer:
-                Color.fromARGB(255, 16, 22, 39), //nawaf's containers
-            secondaryContainer: Color.fromARGB(255, 60, 92, 205), //accent
-          )),
-      home: const AuthScreen(),
+      theme: darkTheme,
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (ctx, snapshot) {
+          if (snapshot.hasData) {
+            return const HomepageScreen();
+          }
+          return const AuthScreen();
+        },
+      ),
     );
   }
 }
