@@ -14,6 +14,15 @@ class HomepageScreen extends StatelessWidget {
       userEmail = _currentUser.email.toString();
     }
 
-    return Text(userEmail);
+    return Column(
+      children: [
+        Text(userEmail),
+        ElevatedButton(
+            onPressed: () {
+              FirebaseAuth.instance.signOut();
+            },
+            child: Text('SignOut ! '))
+      ],
+    );
   }
 }

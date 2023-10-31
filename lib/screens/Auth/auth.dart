@@ -42,9 +42,12 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _invalidId = false;
   bool _invalidPassword = false;
   bool _invalidDate = false;
+  bool _invalidCreds = true;
+  bool _userExists = false;
 
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
+    _formKey.currentState!.save();
 
     // if (!isValid || !_isLogin) {
     //   return;
@@ -58,23 +61,71 @@ class _AuthScreenState extends State<AuthScreen> {
     //get name from firebase
     //pass bod from here
     //get gender from firebase
-    print(!_isLogin);
-    print(!_isPatient);
-    if (!_isLogin && _isPatient) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (ctx) => SignUpPatientScreen(),
-        ),
-      );
+    // print(!_isLogin);
+    // print(!_isPatient);
+
+    //gets the records that have id in the patients collection equal to id entered by user (0 or 1)
+    final patientSnap = await _firestore
+        .collection('patients')
+        .where('nationalid', isEqualTo: _enteredId)
+        .get();
+    //one record is spoused to be found in nafees collection
+    final userSnap = await _firestore
+        .collection('nafees')
+        .where('nationalid', isEqualTo: _enteredId)
+        .get();
+    if (userSnap.docs.isNotEmpty) {
+      Timestamp timestamp = userSnap.docs[0].get('birthdate');
+      DateTime d = timestamp.toDate();
+      String formattedDate = DateFormat('yyyy-MM-dd').format(d);
+      print(formattedDate.toString());
+      if (!_isLogin &&
+          _isPatient &&
+          patientSnap.docs.isEmpty &&
+          formattedDate == _enteredDate) {
+        var userName = userSnap.docs[0].get('name').toString();
+        print(userName);
+        var userGender = userSnap.docs[0].get('gender').toString();
+        print(userGender);
+        setState(() {
+          _invalidCreds = true;
+          _userExists = false;
+        });
+        Navigator.of(context).push(
+          MaterialPageRoute(
+              builder: (ctx) => SignUpPatientScreen(
+                  userName: userName,
+                  userBd: _enteredDate,
+                  userGender: userGender,
+                  nationalId: _enteredId)),
+        );
+      }
+      if (!_isLogin &&
+          _isPatient &&
+          patientSnap.docs.isNotEmpty &&
+          formattedDate == _enteredDate) {
+        setState(() {
+          _invalidCreds = true;
+          _userExists = true;
+        });
+      }
+      if (!_isLogin && _isPatient && formattedDate != _enteredDate) {
+        setState(() {
+          _invalidCreds = false;
+        });
+      }
+    } else {
+      setState(() {
+        _invalidCreds = false;
+      });
     }
 
-    _formKey.currentState!.save();
-    if (_isLogin && _isPatient) {
-      final patientSnap = await _firestore
-          .collection('patients')
-          .where('nationalid', isEqualTo: _enteredId)
-          .get();
+    //if patient tab selected & signup selected
+    //we must check that there is no id registered in the patients collection
+    //that matches the entered id by the user
 
+    //login checks
+    if (_isLogin && _isPatient) {
       if (patientSnap.docs.length == 1) {
         var _patientEmail = patientSnap.docs[0]['email'];
         final userCreds = await _firebaseAuth.signInWithEmailAndPassword(
@@ -115,18 +166,19 @@ class _AuthScreenState extends State<AuthScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(
-                  margin: const EdgeInsets.only(
-                    top: 30,
-                    bottom: 20,
-                    left: 20,
-                    right: 20,
+                if (_isLogin)
+                  Container(
+                    margin: const EdgeInsets.only(
+                      top: 30,
+                      bottom: 20,
+                      left: 20,
+                      right: 20,
+                    ),
+                    width: 200,
+                    child: Image.asset(
+                      'assets/images/Logo.png',
+                    ),
                   ),
-                  width: 200,
-                  child: Image.asset(
-                    'assets/images/Logo.png',
-                  ),
-                ),
                 Text(
                   _isPatient
                       ? 'Your Health is our priority ! '
@@ -183,6 +235,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                       _invalidId = false;
                                       _invalidPassword = false;
                                       dateinput.text = '';
+                                      _invalidCreds = true;
+                                      _userExists = false;
                                     });
                                   },
                                   child: Text(
@@ -218,6 +272,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                       _invalidId = false;
                                       _invalidPassword = false;
                                       dateinput.text = '';
+                                      _invalidCreds = true;
+                                      _userExists = false;
                                     });
                                   },
                                   child: Text(
@@ -230,6 +286,32 @@ class _AuthScreenState extends State<AuthScreen> {
                                 ),
                               ],
                             ),
+                          ),
+
+                          //error message for wrong creds
+                          if (!_invalidCreds)
+                            Text(
+                              'Wrong Credintials !',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge!
+                                  .copyWith(
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
+                            )
+                          else if (_userExists)
+                            Text(
+                              'An account already exists!',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyLarge!
+                                  .copyWith(
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
+                            ),
+
+                          const SizedBox(
+                            height: 24,
                           ),
                           TextFormField(
                             decoration: InputDecoration(
@@ -561,6 +643,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                     _invalidDate = false;
                                     _invalidId = false;
                                     _invalidPassword = false;
+                                    _invalidCreds = true;
+                                    _userExists = false;
                                   });
                                 },
                                 child: Text(

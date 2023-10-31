@@ -1,8 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+final _firebaseAuth = FirebaseAuth.instance;
+final _firestore = FirebaseFirestore.instance;
 
 class SignUpPatientScreen extends StatefulWidget {
-  const SignUpPatientScreen({super.key});
+  SignUpPatientScreen({
+    super.key,
+    required this.userName,
+    required this.userBd,
+    required this.userGender,
+    required this.nationalId,
+  });
+
+  String userName;
+  String userBd;
+  String userGender;
+  String nationalId;
 
   @override
   State<SignUpPatientScreen> createState() => _SignUpPatientScreenState();
@@ -21,6 +37,29 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
 
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
+    _formKey.currentState!.save();
+    if (isValid) {
+      try {
+        final userCred = await _firebaseAuth.createUserWithEmailAndPassword(
+            email: _enteredEmail, password: _enteredPassword);
+        _firestore.collection('patients').doc(userCred.user!.uid).set({
+          'birthdate': widget.userBd,
+          'email': _enteredEmail,
+          'gender': widget.userGender,
+          'mobilenumber': _enteredMobile,
+          'name': widget.userName,
+          'nationalid': widget.nationalId
+        });
+      } on FirebaseAuthException catch (error) {
+        if (error.code == 'email-already-in-use') {}
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error.message ?? 'Auth failed'),
+          ),
+        );
+      }
+    }
     // if (!isValid || !_isLogin) {
     //   return;
     // }
@@ -29,7 +68,6 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
     //   return;
     // }
 
-    _formKey.currentState!.save();
     // try {
     //   if (_isLogin) {
     //     final userCred = await _firebase.signInWithEmailAndPassword(
@@ -58,6 +96,7 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
         TextEditingController().clear();
       },
       child: Scaffold(
+        appBar: AppBar(),
         backgroundColor: Theme.of(context).colorScheme.background,
         body: Center(
           child: SingleChildScrollView(
@@ -94,7 +133,7 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                                   Theme.of(context).colorScheme.secondary,
                               enabled: false,
                               //bring name of patient from database and show here !
-                              label: const Text('Nawaf Mohammed'),
+                              label: Text(widget.userName),
                             ),
                           ),
                           const SizedBox(
@@ -114,7 +153,7 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                                   Theme.of(context).colorScheme.secondary,
                               enabled: false,
                               //bring patient's birthdate from previous page !!
-                              label: const Text('2001-06-14'),
+                              label: Text(widget.userBd),
                             ),
                           ),
                           const SizedBox(
@@ -134,7 +173,7 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                                   Theme.of(context).colorScheme.secondary,
                               enabled: false,
                               // Bring gender from firebase database !
-                              label: const Text('Male'),
+                              label: Text(widget.userGender),
                             ),
                           ),
                           const SizedBox(
