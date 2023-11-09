@@ -6,25 +6,30 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 final _firebaseAuth = FirebaseAuth.instance;
 final _firestore = FirebaseFirestore.instance;
 
-class SignUpPatientScreen extends StatefulWidget {
-  SignUpPatientScreen({
+class SignUpDoctorScreen extends StatefulWidget {
+  SignUpDoctorScreen({
     super.key,
-    required this.patientName,
-    required this.patientBd,
-    required this.patientGender,
+    required this.doctorBd,
+    required this.doctorGender,
+    required this.doctorLevel,
+    required this.doctorName,
     required this.nationalId,
+    required this.doctorNumber,
+    required this.doctorSpecialty,
   });
-
-  String patientName;
-  String patientBd;
-  String patientGender;
+  String doctorBd;
+  String doctorGender;
+  String doctorLevel;
+  String doctorName;
   String nationalId;
+  String doctorNumber;
+  String doctorSpecialty;
 
   @override
-  State<SignUpPatientScreen> createState() => _SignUpPatientScreenState();
+  State<SignUpDoctorScreen> createState() => _SignUpDoctorScreenState();
 }
 
-class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
+class _SignUpDoctorScreenState extends State<SignUpDoctorScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _invalidMobile = false;
   bool _invalidEmail = false;
@@ -42,13 +47,16 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
       try {
         final userCred = await _firebaseAuth.createUserWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
-        _firestore.collection('patients').doc(userCred.user!.uid).set({
-          'birthdate': widget.patientBd,
+        _firestore.collection('doctors').doc(userCred.user!.uid).set({
           'email': _enteredEmail,
-          'gender': widget.patientGender,
           'mobilenumber': _enteredMobile,
-          'name': widget.patientName,
-          'nationalid': widget.nationalId
+          'birthdate': widget.doctorBd,
+          'gender': widget.doctorGender,
+          'level': widget.doctorLevel,
+          'name': widget.doctorName,
+          'nationalid': widget.nationalId,
+          'pracnumber': widget.doctorNumber,
+          'specialty': widget.doctorSpecialty,
         });
       } on FirebaseAuthException catch (error) {
         if (error.code == 'email-already-in-use') {}
@@ -96,24 +104,31 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
         TextEditingController().clear();
       },
       child: Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          title: Text(
+            'Account Information',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+          ),
+          centerTitle: true,
+          backgroundColor: Theme.of(context).colorScheme.background,
+        ),
         backgroundColor: Theme.of(context).colorScheme.background,
         body: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.only(top: 24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Account Information',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                ),
                 SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.fromLTRB(
+                      24,
+                      0,
+                      24,
+                      24,
+                    ),
                     child: Form(
                       key: _formKey,
                       child: Column(
@@ -133,7 +148,9 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                                   Theme.of(context).colorScheme.secondary,
                               enabled: false,
                               //bring name of patient from database and show here !
-                              label: Text(widget.patientName),
+                              label: Text(
+                                widget.doctorName.toString(),
+                              ),
                             ),
                           ),
                           const SizedBox(
@@ -153,7 +170,28 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                                   Theme.of(context).colorScheme.secondary,
                               enabled: false,
                               //bring patient's birthdate from previous page !!
-                              label: Text(widget.patientBd),
+                              label: Text(widget.doctorSpecialty),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 16,
+                          ),
+
+                          TextFormField(
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: const BorderSide(
+                                  width: 2,
+                                  style: BorderStyle.none,
+                                ),
+                              ),
+                              filled: true,
+                              fillColor:
+                                  Theme.of(context).colorScheme.secondary,
+                              enabled: false,
+                              //bring patient's birthdate from previous page !!
+                              label: Text(widget.doctorNumber),
                             ),
                           ),
                           const SizedBox(
@@ -173,7 +211,7 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                                   Theme.of(context).colorScheme.secondary,
                               enabled: false,
                               // Bring gender from firebase database !
-                              label: Text(widget.patientGender),
+                              label: Text(widget.doctorGender),
                             ),
                           ),
                           const SizedBox(
@@ -400,9 +438,7 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                             obscureText: true,
 
                             validator: (value) {
-                              final vpassword = value == null ||
-                                  !RegExp(r'^(?=.?[A-Z])(?=.?[a-z])(?=.?[0-9])(?=.?[!@#$&*~-]).{6,}$')
-                                      .hasMatch(value);
+                              final vpassword = value == null;
                               if (vpassword) {
                                 setState(() {
                                   _invalidPassword = vpassword;

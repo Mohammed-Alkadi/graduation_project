@@ -2,7 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gp/models/patients.dart';
-import 'package:gp/screens/Auth/signupPatient.dart';
+import 'package:gp/screens/Auth/signuppatient.dart';
+import 'package:gp/screens/Auth/signupdoctor.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -49,107 +50,166 @@ class _AuthScreenState extends State<AuthScreen> {
     final isValid = _formKey.currentState!.validate();
     _formKey.currentState!.save();
 
-    // if (!isValid || !_isLogin) {
-    //   return;
-    // }
-    if (!isValid) {
-      return;
-    }
-
-    //Add firebase logic
-    //check if id and bod exists in simulation database
-    //get name from firebase
-    //pass bod from here
-    //get gender from firebase
-    // print(!_isLogin);
-    // print(!_isPatient);
-
+    //one record is spoused to be found in nafees collection
+    final pUserSnap = await _firestore
+        .collection('nafees')
+        .where('nationalid', isEqualTo: _enteredId)
+        .get();
     //gets the records that have id in the patients collection equal to id entered by user (0 or 1)
     final patientSnap = await _firestore
         .collection('patients')
         .where('nationalid', isEqualTo: _enteredId)
         .get();
-    //one record is spoused to be found in nafees collection
-    final userSnap = await _firestore
-        .collection('nafees')
+
+    //one record is spoused to be found in nafeesdocotrs collection
+    final dUserSnap = await _firestore
+        .collection('nafeesdoctors')
         .where('nationalid', isEqualTo: _enteredId)
         .get();
-    if (userSnap.docs.isNotEmpty) {
-      Timestamp timestamp = userSnap.docs[0].get('birthdate');
-      DateTime d = timestamp.toDate();
-      String formattedDate = DateFormat('yyyy-MM-dd').format(d);
-      print(formattedDate.toString());
-      if (!_isLogin &&
-          _isPatient &&
-          patientSnap.docs.isEmpty &&
-          formattedDate == _enteredDate) {
-        var userName = userSnap.docs[0].get('name').toString();
-        print(userName);
-        var userGender = userSnap.docs[0].get('gender').toString();
-        print(userGender);
-        setState(() {
-          _invalidCreds = true;
-          _userExists = false;
-        });
-        Navigator.of(context).push(
-          MaterialPageRoute(
-              builder: (ctx) => SignUpPatientScreen(
-                  userName: userName,
-                  userBd: _enteredDate,
-                  userGender: userGender,
-                  nationalId: _enteredId)),
-        );
+
+    //gets the records that have id in the doctor collection equal to id entered by user (0 or 1)
+    final doctorSnap = await _firestore
+        .collection('doctors')
+        .where('nationalid', isEqualTo: _enteredId)
+        .get();
+
+    void _patientLogin() async {
+      if (patientSnap.docs.length == 1) {
+        var _patientEmail = patientSnap.docs[0]['email'];
+        final pUserCreds = await _firebaseAuth.signInWithEmailAndPassword(
+            email: _patientEmail, password: _enteredPassword);
       }
-      if (!_isLogin &&
-          _isPatient &&
-          patientSnap.docs.isNotEmpty &&
-          formattedDate == _enteredDate) {
-        setState(() {
-          _invalidCreds = true;
-          _userExists = true;
-        });
-      }
-      if (!_isLogin && _isPatient && formattedDate != _enteredDate) {
+    }
+
+    void _patientSignUp() async {
+      if (pUserSnap.docs.isNotEmpty) {
+        Timestamp timestamp = pUserSnap.docs[0].get('birthdate');
+        DateTime d = timestamp.toDate();
+        String formattedDate = DateFormat('yyyy-MM-dd').format(d);
+        print(formattedDate.toString());
+        if (patientSnap.docs.isEmpty && formattedDate == _enteredDate) {
+          var pUserName = pUserSnap.docs[0].get('name').toString();
+          print(pUserName);
+          var dUserGender = pUserSnap.docs[0].get('gender').toString();
+          print(dUserGender);
+          setState(() {
+            _invalidCreds = true;
+            _userExists = false;
+          });
+          Navigator.of(context).push(
+            MaterialPageRoute(
+                builder: (ctx) => SignUpPatientScreen(
+                    patientName: pUserName,
+                    patientBd: _enteredDate,
+                    patientGender: dUserGender,
+                    nationalId: _enteredId)),
+          );
+        }
+        if (!_isLogin &&
+            _isPatient &&
+            patientSnap.docs.isNotEmpty &&
+            formattedDate == _enteredDate) {
+          setState(() {
+            _invalidCreds = true;
+            _userExists = true;
+          });
+        }
+        if (!_isLogin && _isPatient && formattedDate != _enteredDate) {
+          setState(() {
+            _invalidCreds = false;
+          });
+        }
+      } else {
         setState(() {
           _invalidCreds = false;
         });
       }
-    } else {
-      setState(() {
-        _invalidCreds = false;
-      });
     }
 
-    //if patient tab selected & signup selected
-    //we must check that there is no id registered in the patients collection
-    //that matches the entered id by the user
-
-    //login checks
+    if (!_isLogin && _isPatient) {
+      _patientSignUp();
+    }
     if (_isLogin && _isPatient) {
-      if (patientSnap.docs.length == 1) {
-        var _patientEmail = patientSnap.docs[0]['email'];
-        final userCreds = await _firebaseAuth.signInWithEmailAndPassword(
-            email: _patientEmail, password: _enteredPassword);
+      _patientLogin();
+    }
+    // if (!isValid || !_isLogin) {
+    //   return;
+    // }
+
+    void _doctorLogin() async {
+      if (doctorSnap.docs.length == 1) {
+        var _doctorEmail = doctorSnap.docs[0]['email'];
+        final dUserCreds = await _firebaseAuth.signInWithEmailAndPassword(
+            email: _doctorEmail, password: _enteredPassword);
       }
     }
-    // try {
-    //   if (_isLogin) {
-    //     final userCred = await _firebase.signInWithEmailAndPassword(
-    //         email: _enteredEmail, password: _enteredPassword);
-    //   } else {
-    //     final userCred = await _firebase.createUserWithEmailAndPassword(
-    //         email: _enteredEmail, password: _enteredPassword);
 
-    //     }
-    //   } on FirebaseAuthException catch (error) {
-    //     if (error.code == 'email-already-in-use') {}
-    //     ScaffoldMessenger.of(context).clearSnackBars();
-    //     ScaffoldMessenger.of(context).showSnackBar(
-    //       SnackBar(
-    //         content: Text(error.message ?? 'Auth failed'),
-    //       ),
-    //     );
-    //   }
+    void _doctorSignUp() async {
+      if (dUserSnap.docs.isNotEmpty) {
+        Timestamp timestamp = dUserSnap.docs[0].get('birthdate');
+        DateTime d = timestamp.toDate();
+        String formattedDate = DateFormat('yyyy-MM-dd').format(d);
+        print(formattedDate.toString());
+        print(_enteredDate);
+
+        if (doctorSnap.docs.isEmpty && formattedDate == _enteredDate) {
+          var dUserName = dUserSnap.docs[0].get('name').toString();
+          print(dUserName);
+          var dUserGender = dUserSnap.docs[0].get('gender').toString();
+          print(dUserGender);
+          var doctorLevel = dUserSnap.docs[0].get('level').toString();
+          print(doctorLevel);
+          var doctorSpecialty = dUserSnap.docs[0].get('specialty').toString();
+          print(doctorSpecialty);
+          var doctorNumber = dUserSnap.docs[0].get('pracnumber').toString();
+          print(doctorNumber);
+          setState(() {
+            _invalidCreds = true;
+            _userExists = false;
+          });
+          Navigator.of(context).push(
+            MaterialPageRoute(
+                builder: (ctx) => SignUpDoctorScreen(
+                    doctorBd: _enteredDate,
+                    doctorGender: dUserGender,
+                    doctorLevel: doctorLevel,
+                    doctorName: dUserName,
+                    nationalId: _enteredId,
+                    doctorNumber: doctorNumber,
+                    doctorSpecialty: doctorSpecialty)),
+          );
+        }
+        if (!_isLogin &&
+            _isDoctor &&
+            doctorSnap.docs.isNotEmpty &&
+            formattedDate == _enteredDate) {
+          setState(() {
+            _invalidCreds = true;
+            _userExists = true;
+          });
+        }
+        if (!_isLogin && _isDoctor && formattedDate != _enteredDate) {
+          setState(() {
+            _invalidCreds = false;
+          });
+        }
+      } else {
+        setState(() {
+          _invalidCreds = false;
+        });
+      }
+    }
+
+    if (!_isLogin && _isDoctor) {
+      _doctorSignUp();
+    }
+    if (_isLogin && _isDoctor) {
+      _doctorLogin();
+    }
+
+    if (!isValid) {
+      return;
+    }
   }
 
   @override
