@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:gp/screens/Auth/auth.dart';
 import 'package:gp/screens/tabs.dart';
 import 'package:gp/themes/theme.dart';
 
@@ -18,17 +17,16 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'FlutterChat',
-      theme: darkTheme,
-      home: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (ctx, snapshot) {
-          if (snapshot.hasData) {
-            return const TabsScreen();
-          }
-          return const AuthScreen();
-        },
-      ),
-    );
+        title: 'FlutterChat', theme: darkTheme, home: TabsScreen()
+        // StreamBuilder(
+        //   stream: FirebaseAuth.instance.authStateChanges(),
+        //   builder: (ctx, snapshot) {
+        //     if (snapshot.hasData) {
+        //       return const TabsScreen();
+        //     }
+        //     return const AuthScreen();
+        //   },
+        // ),
+        );
   }
 }

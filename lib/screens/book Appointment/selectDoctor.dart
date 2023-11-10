@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:gp/widgets/doctorCard.dart';
+import 'package:gp/widgets/doctorCardTap.dart';
 
 class SelectDoctorScreen extends StatefulWidget {
   const SelectDoctorScreen({super.key});
@@ -67,23 +67,23 @@ class _SelectDoctorScreenState extends State<SelectDoctorScreen> {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    DoctorCard(
+                    DoctorCardTap(
                         doctorName: 'doctorName', speciality: 'speciality'),
-                    DoctorCard(
+                    DoctorCardTap(
                         doctorName: 'doctorName', speciality: 'speciality'),
-                    DoctorCard(
+                    DoctorCardTap(
                         doctorName: 'doctorName', speciality: 'speciality'),
-                    DoctorCard(
+                    DoctorCardTap(
                         doctorName: 'doctorName', speciality: 'speciality'),
-                    DoctorCard(
+                    DoctorCardTap(
                         doctorName: 'doctorName', speciality: 'speciality'),
-                    DoctorCard(
+                    DoctorCardTap(
                         doctorName: 'doctorName', speciality: 'speciality'),
-                    DoctorCard(
+                    DoctorCardTap(
                         doctorName: 'doctorName', speciality: 'speciality'),
-                    DoctorCard(
+                    DoctorCardTap(
                         doctorName: 'doctorName', speciality: 'speciality'),
-                    DoctorCard(
+                    DoctorCardTap(
                         doctorName: 'doctorName', speciality: 'speciality'),
                   ],
                 ),

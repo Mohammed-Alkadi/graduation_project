@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:gp/screens/book%20Appointment/schdule.dart';
+import 'package:gp/screens/book%20Appointment/schedule.dart';
 
-class DoctorCard extends StatelessWidget {
+class DoctorCardTap extends StatelessWidget {
   final String doctorName;
   final String speciality;
 
 //image or icon
-  const DoctorCard(
+  const DoctorCardTap(
       {super.key, required this.doctorName, required this.speciality});
 
   @override
@@ -23,7 +23,7 @@ class DoctorCard extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
-        color: Theme.of(context).colorScheme.onBackground,
+        color: Theme.of(context).colorScheme.secondary,
         child: Container(
           // width: 349,
           // height: 154,
