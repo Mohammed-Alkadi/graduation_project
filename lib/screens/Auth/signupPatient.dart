@@ -34,12 +34,16 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
   var _enteredEmail = '';
   var _enteredPassword = '';
   var _enteredConfirmPassword = '';
+  bool _isLoading = false;
 
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
     _formKey.currentState!.save();
     if (isValid) {
       try {
+        setState(() {
+          _isLoading = true;
+        });
         final userCred = await _firebaseAuth.createUserWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
         _firestore.collection('patients').doc(userCred.user!.uid).set({
@@ -50,7 +54,11 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
           'name': widget.patientName,
           'nationalid': widget.nationalId
         });
+        Navigator.of(context).pop();
       } on FirebaseAuthException catch (error) {
+        setState(() {
+          _isLoading = false;
+        });
         if (error.code == 'email-already-in-use') {}
         ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -96,24 +104,31 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
         TextEditingController().clear();
       },
       child: Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          title: Text(
+            'Account Information',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+          ),
+          centerTitle: true,
+          backgroundColor: Theme.of(context).colorScheme.background,
+        ),
         backgroundColor: Theme.of(context).colorScheme.background,
         body: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.only(top: 24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Account Information',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                ),
-                SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                24,
+                0,
+                24,
+                24,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SingleChildScrollView(
                     child: Form(
                       key: _formKey,
                       child: Column(
@@ -243,8 +258,7 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                             validator: (value) {
                               //لازم نضيف للشرط نتيجة التشييك على رقم بالفايربيس
                               final invMobile = value == null ||
-                                  value.trim().isEmpty ||
-                                  value.length != 10;
+                                  !RegExp(r'^05\d{8}$').hasMatch(value);
                               if (invMobile) {
                                 setState(() {
                                   _invalidMobile = invMobile;
@@ -401,8 +415,9 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
 
                             validator: (value) {
                               final vpassword = value == null ||
-                                  !RegExp(r'^(?=.?[A-Z])(?=.?[a-z])(?=.?[0-9])(?=.?[!@#$&*~-]).{6,}$')
+                                  !RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$&*~-]).{8,}$')
                                       .hasMatch(value);
+                              _enteredPassword = value!;
                               if (vpassword) {
                                 setState(() {
                                   _invalidPassword = vpassword;
@@ -481,10 +496,12 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                             obscureText: true,
 
                             validator: (value) {
-                              final confirmVpassword = value == null ||
-                                  value.trim().length < 6 ||
-                                  // _enteredPassword.compareTo(value) != 0
+                              final confirmVpassword =
                                   _enteredPassword != value;
+                              // _enteredPassword.compareTo(value) != 0
+
+                              // print(_enteredPassword);
+                              // print(value);
                               if (confirmVpassword) {
                                 setState(() {
                                   _invalidConfirmPassword = confirmVpassword;
@@ -504,34 +521,38 @@ class _SignUpPatientScreenState extends State<SignUpPatientScreen> {
                           const SizedBox(
                             height: 12,
                           ),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _submit,
-                              style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.primary),
-                              child: Text(
-                                'Finish',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge!
-                                    .copyWith(
-                                        color: Theme.of(context)
+                          _isLoading
+                              ? CircularProgressIndicator()
+                              : SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: _submit,
+                                    style: ElevatedButton.styleFrom(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        backgroundColor: Theme.of(context)
                                             .colorScheme
-                                            .onPrimary),
-                              ),
-                            ),
-                          ),
+                                            .primary),
+                                    child: Text(
+                                      'Finish',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge!
+                                          .copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onPrimary),
+                                    ),
+                                  ),
+                                ),
                         ],
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomepageScreen extends StatelessWidget {
   const HomepageScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    var _firebase = FirebaseAuth.instance;
     // var userEmail;
     // final _currentUser = FirebaseAuth.instance.currentUser;
     // if (_currentUser != null) {
@@ -57,6 +59,13 @@ class HomepageScreen extends StatelessWidget {
                         color: Theme.of(context).colorScheme.onPrimary,
                       ),
                 ),
+              ),
+              //signout button
+              ElevatedButton(
+                onPressed: () {
+                  _firebase.signOut();
+                },
+                child: Text('SignOut!'),
               ),
             ],
           ),

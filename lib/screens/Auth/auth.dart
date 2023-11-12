@@ -39,177 +39,211 @@ class _AuthScreenState extends State<AuthScreen> {
   var _enteredId = '';
   var _enteredPassword = '';
   var _enteredDate = '';
-  bool _inValidEmail = false;
+  bool _invalidEmail = false;
   bool _invalidId = false;
   bool _invalidPassword = false;
   bool _invalidDate = false;
   bool _invalidCreds = true;
   bool _userExists = false;
+  bool _invalidLoginCreds = false;
+  bool _isLoading = false;
 
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
     _formKey.currentState!.save();
+    if (isValid) {
+      setState(() {
+        _isLoading = true;
+      });
+      final pUserSnap = await _firestore
+          .collection('nafees')
+          .where('nationalid', isEqualTo: _enteredId)
+          .get();
+      //gets the records that have id in the patients collection equal to id entered by user (0 or 1)
+      final patientSnap = await _firestore
+          .collection('patients')
+          .where('nationalid', isEqualTo: _enteredId)
+          .get();
 
+      //one record is spoused to be found in nafeesdocotrs collection
+      final dUserSnap = await _firestore
+          .collection('nafeesdoctors')
+          .where('nationalid', isEqualTo: _enteredId)
+          .get();
+
+      //gets the records that have id in the doctor collection equal to id entered by user (0 or 1)
+      final doctorSnap = await _firestore
+          .collection('doctors')
+          .where('nationalid', isEqualTo: _enteredId)
+          .get();
+
+      void _patientLogin() async {
+        if (patientSnap.docs.length == 1) {
+          var _patientEmail = patientSnap.docs[0]['email'];
+          try {
+            final pUserCreds = await _firebaseAuth.signInWithEmailAndPassword(
+                email: _patientEmail, password: _enteredPassword);
+          } on FirebaseAuthException catch (e) {
+            setState(() {
+              _invalidLoginCreds = true;
+              _isLoading = false;
+            });
+          }
+        } else {
+          setState(() {
+            _invalidLoginCreds = true;
+            _isLoading = false;
+          });
+        }
+      }
+
+      void _patientSignUp() async {
+        if (pUserSnap.docs.isNotEmpty) {
+          Timestamp timestamp = pUserSnap.docs[0].get('birthdate');
+          DateTime d = timestamp.toDate();
+          String formattedDate = DateFormat('yyyy-MM-dd').format(d);
+          print(formattedDate.toString());
+          if (patientSnap.docs.isEmpty && formattedDate == _enteredDate) {
+            var pUserName = pUserSnap.docs[0].get('name').toString();
+            print(pUserName);
+            var dUserGender = pUserSnap.docs[0].get('gender').toString();
+            print(dUserGender);
+            setState(() {
+              _invalidCreds = true;
+              _userExists = false;
+              _isLoading = false;
+            });
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                  builder: (ctx) => SignUpPatientScreen(
+                      patientName: pUserName,
+                      patientBd: _enteredDate,
+                      patientGender: dUserGender,
+                      nationalId: _enteredId)),
+            );
+          }
+          if (!_isLogin &&
+              _isPatient &&
+              patientSnap.docs.isNotEmpty &&
+              formattedDate == _enteredDate) {
+            setState(() {
+              _invalidCreds = true;
+              _userExists = true;
+              _isLoading = false;
+            });
+          }
+          if (!_isLogin && _isPatient && formattedDate != _enteredDate) {
+            setState(() {
+              _invalidCreds = false;
+              _isLoading = false;
+            });
+          }
+        } else {
+          setState(() {
+            _invalidCreds = false;
+            _isLoading = false;
+          });
+        }
+      }
+
+      if (!_isLogin && _isPatient) {
+        _patientSignUp();
+      }
+      if (_isLogin && _isPatient) {
+        _patientLogin();
+      }
+      // if (!isValid || !_isLogin) {
+      //   return;
+      // }
+
+      void _doctorLogin() async {
+        if (doctorSnap.docs.length == 1) {
+          var _doctorEmail = doctorSnap.docs[0]['email'];
+          try {
+            final dUserCreds = await _firebaseAuth.signInWithEmailAndPassword(
+                email: _doctorEmail, password: _enteredPassword);
+          } on FirebaseAuthException catch (e) {
+            setState(() {
+              _invalidLoginCreds = true;
+              _isLoading = false;
+            });
+          }
+        } else {
+          setState(() {
+            _invalidLoginCreds = true;
+            _isLoading = false;
+          });
+        }
+      }
+
+      void _doctorSignUp() async {
+        if (dUserSnap.docs.isNotEmpty) {
+          Timestamp timestamp = dUserSnap.docs[0].get('birthdate');
+          DateTime d = timestamp.toDate();
+          String formattedDate = DateFormat('yyyy-MM-dd').format(d);
+          print(formattedDate.toString());
+          print(_enteredDate);
+
+          if (doctorSnap.docs.isEmpty && formattedDate == _enteredDate) {
+            var dUserName = dUserSnap.docs[0].get('name').toString();
+
+            var dUserGender = dUserSnap.docs[0].get('gender').toString();
+
+            var doctorLevel = dUserSnap.docs[0].get('level').toString();
+
+            var doctorSpecialty = dUserSnap.docs[0].get('specialty').toString();
+
+            var doctorNumber = dUserSnap.docs[0].get('pracnumber').toString();
+
+            setState(() {
+              _invalidCreds = true;
+              _userExists = false;
+              _isLoading = false;
+            });
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                  builder: (ctx) => SignUpDoctorScreen(
+                      doctorBd: _enteredDate,
+                      doctorGender: dUserGender,
+                      doctorLevel: doctorLevel,
+                      doctorName: dUserName,
+                      nationalId: _enteredId,
+                      doctorNumber: doctorNumber,
+                      doctorSpecialty: doctorSpecialty)),
+            );
+          }
+          if (!_isLogin &&
+              _isDoctor &&
+              doctorSnap.docs.isNotEmpty &&
+              formattedDate == _enteredDate) {
+            setState(() {
+              _invalidCreds = true;
+              _userExists = true;
+              _isLoading = false;
+            });
+          }
+          if (!_isLogin && _isDoctor && formattedDate != _enteredDate) {
+            setState(() {
+              _invalidCreds = false;
+              _isLoading = false;
+            });
+          }
+        } else {
+          setState(() {
+            _invalidCreds = false;
+            _isLoading = false;
+          });
+        }
+      }
+
+      if (!_isLogin && _isDoctor) {
+        _doctorSignUp();
+      }
+      if (_isLogin && _isDoctor) {
+        _doctorLogin();
+      }
+    }
     //one record is spoused to be found in nafees collection
-    final pUserSnap = await _firestore
-        .collection('nafees')
-        .where('nationalid', isEqualTo: _enteredId)
-        .get();
-    //gets the records that have id in the patients collection equal to id entered by user (0 or 1)
-    final patientSnap = await _firestore
-        .collection('patients')
-        .where('nationalid', isEqualTo: _enteredId)
-        .get();
-
-    //one record is spoused to be found in nafeesdocotrs collection
-    final dUserSnap = await _firestore
-        .collection('nafeesdoctors')
-        .where('nationalid', isEqualTo: _enteredId)
-        .get();
-
-    //gets the records that have id in the doctor collection equal to id entered by user (0 or 1)
-    final doctorSnap = await _firestore
-        .collection('doctors')
-        .where('nationalid', isEqualTo: _enteredId)
-        .get();
-
-    void _patientLogin() async {
-      if (patientSnap.docs.length == 1) {
-        var _patientEmail = patientSnap.docs[0]['email'];
-        final pUserCreds = await _firebaseAuth.signInWithEmailAndPassword(
-            email: _patientEmail, password: _enteredPassword);
-      }
-    }
-
-    void _patientSignUp() async {
-      if (pUserSnap.docs.isNotEmpty) {
-        Timestamp timestamp = pUserSnap.docs[0].get('birthdate');
-        DateTime d = timestamp.toDate();
-        String formattedDate = DateFormat('yyyy-MM-dd').format(d);
-        print(formattedDate.toString());
-        if (patientSnap.docs.isEmpty && formattedDate == _enteredDate) {
-          var pUserName = pUserSnap.docs[0].get('name').toString();
-          print(pUserName);
-          var dUserGender = pUserSnap.docs[0].get('gender').toString();
-          print(dUserGender);
-          setState(() {
-            _invalidCreds = true;
-            _userExists = false;
-          });
-          Navigator.of(context).push(
-            MaterialPageRoute(
-                builder: (ctx) => SignUpPatientScreen(
-                    patientName: pUserName,
-                    patientBd: _enteredDate,
-                    patientGender: dUserGender,
-                    nationalId: _enteredId)),
-          );
-        }
-        if (!_isLogin &&
-            _isPatient &&
-            patientSnap.docs.isNotEmpty &&
-            formattedDate == _enteredDate) {
-          setState(() {
-            _invalidCreds = true;
-            _userExists = true;
-          });
-        }
-        if (!_isLogin && _isPatient && formattedDate != _enteredDate) {
-          setState(() {
-            _invalidCreds = false;
-          });
-        }
-      } else {
-        setState(() {
-          _invalidCreds = false;
-        });
-      }
-    }
-
-    if (!_isLogin && _isPatient) {
-      _patientSignUp();
-    }
-    if (_isLogin && _isPatient) {
-      _patientLogin();
-    }
-    // if (!isValid || !_isLogin) {
-    //   return;
-    // }
-
-    void _doctorLogin() async {
-      if (doctorSnap.docs.length == 1) {
-        var _doctorEmail = doctorSnap.docs[0]['email'];
-        final dUserCreds = await _firebaseAuth.signInWithEmailAndPassword(
-            email: _doctorEmail, password: _enteredPassword);
-      }
-    }
-
-    void _doctorSignUp() async {
-      if (dUserSnap.docs.isNotEmpty) {
-        Timestamp timestamp = dUserSnap.docs[0].get('birthdate');
-        DateTime d = timestamp.toDate();
-        String formattedDate = DateFormat('yyyy-MM-dd').format(d);
-        print(formattedDate.toString());
-        print(_enteredDate);
-
-        if (doctorSnap.docs.isEmpty && formattedDate == _enteredDate) {
-          var dUserName = dUserSnap.docs[0].get('name').toString();
-          print(dUserName);
-          var dUserGender = dUserSnap.docs[0].get('gender').toString();
-          print(dUserGender);
-          var doctorLevel = dUserSnap.docs[0].get('level').toString();
-          print(doctorLevel);
-          var doctorSpecialty = dUserSnap.docs[0].get('specialty').toString();
-          print(doctorSpecialty);
-          var doctorNumber = dUserSnap.docs[0].get('pracnumber').toString();
-          print(doctorNumber);
-          setState(() {
-            _invalidCreds = true;
-            _userExists = false;
-          });
-          Navigator.of(context).push(
-            MaterialPageRoute(
-                builder: (ctx) => SignUpDoctorScreen(
-                    doctorBd: _enteredDate,
-                    doctorGender: dUserGender,
-                    doctorLevel: doctorLevel,
-                    doctorName: dUserName,
-                    nationalId: _enteredId,
-                    doctorNumber: doctorNumber,
-                    doctorSpecialty: doctorSpecialty)),
-          );
-        }
-        if (!_isLogin &&
-            _isDoctor &&
-            doctorSnap.docs.isNotEmpty &&
-            formattedDate == _enteredDate) {
-          setState(() {
-            _invalidCreds = true;
-            _userExists = true;
-          });
-        }
-        if (!_isLogin && _isDoctor && formattedDate != _enteredDate) {
-          setState(() {
-            _invalidCreds = false;
-          });
-        }
-      } else {
-        setState(() {
-          _invalidCreds = false;
-        });
-      }
-    }
-
-    if (!_isLogin && _isDoctor) {
-      _doctorSignUp();
-    }
-    if (_isLogin && _isDoctor) {
-      _doctorLogin();
-    }
-
-    if (!isValid) {
-      return;
-    }
   }
 
   @override
@@ -297,6 +331,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                       dateinput.text = '';
                                       _invalidCreds = true;
                                       _userExists = false;
+                                      _invalidLoginCreds = false;
+                                      _enteredId = "";
                                     });
                                   },
                                   child: Text(
@@ -334,6 +370,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                       dateinput.text = '';
                                       _invalidCreds = true;
                                       _userExists = false;
+                                      _invalidLoginCreds = false;
+                                      _enteredId = "";
                                     });
                                   },
                                   child: Text(
@@ -349,7 +387,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           ),
 
                           //error message for wrong creds
-                          if (!_invalidCreds)
+                          if (!_invalidCreds || _invalidLoginCreds)
                             Text(
                               'Wrong Credintials !',
                               style: Theme.of(context)
@@ -374,6 +412,8 @@ class _AuthScreenState extends State<AuthScreen> {
                             height: 24,
                           ),
                           TextFormField(
+                            initialValue:
+                                _enteredId.isNotEmpty ? _enteredId : null,
                             decoration: InputDecoration(
                               focusedErrorBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -513,13 +553,13 @@ class _AuthScreenState extends State<AuthScreen> {
                                   ),
                                   obscureText: true,
                                   validator: (value) {
-                                    final vpassword = value == null ||
-                                        value.trim().length < 6;
+                                    final vpassword = value == null;
+
                                     if (vpassword) {
                                       setState(() {
                                         _invalidPassword = vpassword;
                                       });
-                                      return 'password is not correct !';
+                                      return 'Enter password please !';
                                     }
                                     setState(() {
                                       _invalidPassword = vpassword;
@@ -665,65 +705,77 @@ class _AuthScreenState extends State<AuthScreen> {
                           const SizedBox(
                             height: 12,
                           ),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                _submit();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.primary),
-                              child: Text(
-                                _isLogin ? 'Login' : 'Signup',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge!
-                                    .copyWith(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary),
-                              ),
-                            ),
-                          ),
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              TextButton(
-                                onPressed: () {
-                                  setState(() {
-                                    _formKey.currentState!.reset();
-                                    _isLogin = !_isLogin;
-                                    dateinput.text = ''; // for date
-                                    _enteredDate = ''; // for date
-                                    _invalidDate = false;
-                                    _invalidId = false;
-                                    _invalidPassword = false;
-                                    _invalidCreds = true;
-                                    _userExists = false;
-                                  });
-                                },
-                                child: Text(
-                                  _isLogin
-                                      ? 'create an account'
-                                      : 'already have an account',
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary),
+                          _isLoading
+                              ? const CircularProgressIndicator()
+                              : Column(
+                                  children: [
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          _submit();
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            backgroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .primary),
+                                        child: Text(
+                                          _isLogin ? 'Login' : 'Signup',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleLarge!
+                                              .copyWith(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onPrimary),
+                                        ),
+                                      ),
+                                    ),
+                                    Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        TextButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              _formKey.currentState!.reset();
+                                              _isLogin = !_isLogin;
+                                              dateinput.text = ''; // for date
+                                              _enteredDate = ''; // for date
+                                              _invalidDate = false;
+                                              _invalidId = false;
+                                              _invalidPassword = false;
+                                              _invalidCreds = true;
+                                              _userExists = false;
+                                              _invalidLoginCreds = false;
+                                            });
+                                          },
+                                          child: Text(
+                                            _isLogin
+                                                ? 'create an account'
+                                                : 'already have an account',
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .onPrimary),
+                                          ),
+                                        ),
+                                        Text(
+                                          'Forget your passowrd?',
+                                          style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .error),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              Text(
-                                'Forget your passowrd?',
-                                style: TextStyle(
-                                    color: Theme.of(context).colorScheme.error),
-                              ),
-                            ],
-                          ),
                         ],
                       ),
                     ),

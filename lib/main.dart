@@ -23,16 +23,17 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'FlutterChat', theme: darkTheme, home: TabsScreen()
-        // StreamBuilder(
-        //   stream: FirebaseAuth.instance.authStateChanges(),
-        //   builder: (ctx, snapshot) {
-        //     if (snapshot.hasData) {
-        //       return const TabsScreen();
-        //     }
-        //     return const AuthScreen();
-        //   },
-        // ),
-        );
+      title: 'FlutterChat',
+      theme: darkTheme,
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (ctx, snapshot) {
+          if (snapshot.hasData) {
+            return const TabsScreen();
+          }
+          return const AuthScreen();
+        },
+      ),
+    );
   }
 }

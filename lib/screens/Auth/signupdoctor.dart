@@ -39,12 +39,16 @@ class _SignUpDoctorScreenState extends State<SignUpDoctorScreen> {
   var _enteredEmail = '';
   var _enteredPassword = '';
   var _enteredConfirmPassword = '';
+  bool _isLoading = false;
 
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
     _formKey.currentState!.save();
     if (isValid) {
       try {
+        setState(() {
+          _isLoading = true;
+        });
         final userCred = await _firebaseAuth.createUserWithEmailAndPassword(
             email: _enteredEmail, password: _enteredPassword);
         _firestore.collection('doctors').doc(userCred.user!.uid).set({
@@ -58,6 +62,7 @@ class _SignUpDoctorScreenState extends State<SignUpDoctorScreen> {
           'pracnumber': widget.doctorNumber,
           'specialty': widget.doctorSpecialty,
         });
+        Navigator.of(context).pop();
       } on FirebaseAuthException catch (error) {
         if (error.code == 'email-already-in-use') {}
         ScaffoldMessenger.of(context).clearSnackBars();
@@ -66,6 +71,9 @@ class _SignUpDoctorScreenState extends State<SignUpDoctorScreen> {
             content: Text(error.message ?? 'Auth failed'),
           ),
         );
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
     // if (!isValid || !_isLogin) {
@@ -281,8 +289,7 @@ class _SignUpDoctorScreenState extends State<SignUpDoctorScreen> {
                             validator: (value) {
                               //لازم نضيف للشرط نتيجة التشييك على رقم بالفايربيس
                               final invMobile = value == null ||
-                                  value.trim().isEmpty ||
-                                  value.length != 10;
+                                  !RegExp(r'^05\d{8}$').hasMatch(value);
                               if (invMobile) {
                                 setState(() {
                                   _invalidMobile = invMobile;
@@ -438,7 +445,10 @@ class _SignUpDoctorScreenState extends State<SignUpDoctorScreen> {
                             obscureText: true,
 
                             validator: (value) {
-                              final vpassword = value == null;
+                              final vpassword = value == null ||
+                                  !RegExp(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$&*~-]).{8,}$')
+                                      .hasMatch(value);
+                              _enteredPassword = value!;
                               if (vpassword) {
                                 setState(() {
                                   _invalidPassword = vpassword;
@@ -540,28 +550,32 @@ class _SignUpDoctorScreenState extends State<SignUpDoctorScreen> {
                           const SizedBox(
                             height: 12,
                           ),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _submit,
-                              style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.primary),
-                              child: Text(
-                                'Finish',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge!
-                                    .copyWith(
-                                        color: Theme.of(context)
+                          _isLoading
+                              ? CircularProgressIndicator()
+                              : SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: _submit,
+                                    style: ElevatedButton.styleFrom(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        backgroundColor: Theme.of(context)
                                             .colorScheme
-                                            .onPrimary),
-                              ),
-                            ),
-                          ),
+                                            .primary),
+                                    child: Text(
+                                      'Finish',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge!
+                                          .copyWith(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onPrimary),
+                                    ),
+                                  ),
+                                ),
                         ],
                       ),
                     ),
