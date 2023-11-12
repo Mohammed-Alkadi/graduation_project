@@ -11,6 +11,8 @@ environment:
 
 dependencies:
   cloud_firestore: ^4.11.0
+  convex_bottom_bar: ^3.2.0
+  easy_date_timeline: ^1.0.2
   firebase_auth: ^4.11.1
   firebase_core: ^2.19.0
   flutter:
@@ -36,3 +38,4 @@ flutter:
   assets:
     # Add assets from the images directory to the application.
     - assets/images/Logo.png
+    - assets/images/Welcome.png

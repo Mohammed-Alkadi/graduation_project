@@ -1,11 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:gp/screens/Auth/auth.dart';
+import 'package:gp/screens/tabs.dart';
 import 'package:gp/themes/theme.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 // import 'package:gp/screens/homepage.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:gp/screens/Auth/auth.dart';
 // import 'package:gp/screens/tabs.dart';
