@@ -10,12 +10,18 @@ environment:
   sdk: '>=3.1.2 <4.0.0'
 
 dependencies:
-  firebase_core: ^2.17.0
+  cloud_firestore: ^4.11.0
+  convex_bottom_bar: ^3.2.0
+  easy_date_timeline: ^1.0.2
+  firebase_auth: ^4.11.1
+  firebase_core: ^2.19.0
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
   google_fonts: ^6.1.0
+  intl: ^0.18.1
+  timeago: ^3.6.0
 
 dev_dependencies:
   flutter_test:
@@ -31,4 +37,5 @@ flutter:
 
   assets:
     # Add assets from the images directory to the application.
-    - assets/images/
+    - assets/images/Logo.png
+    - assets/images/Welcome.png
